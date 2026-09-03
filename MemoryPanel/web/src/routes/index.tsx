@@ -15,7 +15,6 @@ import { MembersPage } from '@/pages/MembersPage';
 import { AgentsPage } from '@/pages/AgentsPage';
 import { ApiKeysPage } from '@/pages/ApiKeysPage';
 import { GuidePage } from '@/pages/GuidePage';
-import { ProjectMemoryPage } from '@/pages/ProjectMemoryPage';
 
 export const routes: RouteObject[] = [
   {
@@ -27,7 +26,6 @@ export const routes: RouteObject[] = [
       { path: 'code', element: <CodePage /> },
       { path: 'skills', element: <SkillsPage /> },
       { path: 'memory', element: <ChatMemoryPage /> },
-      { path: 'project-memory', element: <ProjectMemoryPage /> },
       { path: 'team/members', element: <MembersPage /> },
       { path: 'team/agents', element: <AgentsPage /> },
       { path: 'team/api-keys', element: <ApiKeysPage /> },

@@ -23,7 +23,6 @@ const PATH_TO_PAGE: Record<string, PageId> = {
   '/code': 'code',
   '/skills': 'skills',
   '/memory': 'chat_memory',
-  '/project-memory': 'project_memory',
   '/team/members': 'team_members',
   '/team/agents': 'team_agents',
   '/team/api-keys': 'api_keys',
@@ -47,6 +46,7 @@ function legacyHashToPath(): string | null {
   if (leaf === 'api_keys' || leaf === 'apikey' || leaf === 'api-keys') return '/team/api-keys';
   return null;
 }
+
 export function ConsoleLayout() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -219,3 +219,4 @@ export function ConsoleLayout() {
     </div>
   );
 }
+ 

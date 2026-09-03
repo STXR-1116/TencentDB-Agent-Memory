@@ -28,7 +28,9 @@ export function UserBadge({
   getTitle?: (displayName: string) => string;
 }) {
   const displayName = useUserDisplayName(userId);
-  const resolvedTitle = getTitle ? getTitle(displayName || userId) : (title ?? userId);
+  const resolvedTitle = getTitle
+    ? getTitle(displayName || userId)
+    : (title ?? userId);
   return (
     <AssetBadge icon={<UserIcon size={10} />} title={resolvedTitle}>
       {displayName || userId}

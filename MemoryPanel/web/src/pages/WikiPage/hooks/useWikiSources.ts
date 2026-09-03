@@ -4,26 +4,12 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  knowledgeApi,
-  wikiProgressPercent,
-  wikiStageLabel,
-  type GraphData,
-  type WikiDetail,
-  type WikiPage,
-} from '@/lib/api/knowledge-api';
+import { knowledgeApi, wikiProgressPercent, wikiStageLabel, type GraphData, type WikiDetail, type WikiPage } from '@/lib/api/knowledge-api';
 import { useTeams, useAgents } from '@/services';
 import { readAuth } from '@/components/LoginGate';
 import { tea, confirmThenRun } from '@/lib/tea-bridge';
 import { findExistingRawFilenames, formatOverwriteFilenames } from '../utils/wiki-upload-utils';
-import {
-  type DetailTab,
-  type SearchResult,
-  type StatusFilter,
-  type SubView,
-  type ViewMode,
-  type WikiScopeTab,
-} from '../constants/wiki-constants';
+import { type DetailTab, type SearchResult, type StatusFilter, type SubView, type ViewMode, type WikiScopeTab } from '../constants/wiki-constants';
 
 export function useWikiSources() {
   const { t } = useTranslation();
@@ -85,9 +71,7 @@ export function useWikiSources() {
       const items = await knowledgeApi.wiki.agentFixed(agentFilter);
       setFixedBoundIds(new Set(items.map((it) => it.knowledge_id)));
     } catch (e: unknown) {
-      tea.notify.error(
-        (e instanceof Error ? e.message : String(e)) || t('wiki.notify.loadFixedFailed'),
-      );
+      tea.notify.error((e instanceof Error ? e.message : String(e)) || t('wiki.notify.loadFixedFailed'));
       setFixedBoundIds(new Set());
     }
   }, [agentFilter]);
@@ -370,9 +354,7 @@ export function useWikiSources() {
     if (hasManualIngestState || !runningWiki) return ingestState;
     const stage = wikiStageLabel(runningWiki.status, runningWiki.internal_status);
     const pageHint =
-      typeof runningWiki.page_count === 'number'
-        ? t('wiki.ingest.currentPage', { count: runningWiki.page_count })
-        : '';
+      typeof runningWiki.page_count === 'number' ? t('wiki.ingest.currentPage', { count: runningWiki.page_count }) : '';
     return {
       active: true,
       wikiId: runningWiki.wiki_id ?? '',
@@ -425,8 +407,7 @@ export function useWikiSources() {
             } else if (ev.type === 'file_done') {
               next.done = ev.done ?? prev.done;
               next.total = ev.total ?? prev.total;
-              next.detail =
-                ev.detail || t('wiki.ingest.checked', { done: next.done, total: next.total });
+              next.detail = ev.detail || t('wiki.ingest.checked', { done: next.done, total: next.total });
               next.checkCount = prev.checkCount + 1;
               next.lastCheckedAt = checkedAt;
               if (ev.file) next.log = [...prev.log, { file: ev.file, status: 'done' }];
@@ -459,11 +440,7 @@ export function useWikiSources() {
           fetchDetail(wikiId);
         },
         onError: (err) => {
-          setIngestState((prev) => ({
-            ...prev,
-            active: false,
-            detail: t('wiki.ingest.error', { error: err }),
-          }));
+          setIngestState((prev) => ({ ...prev, active: false, detail: t('wiki.ingest.error', { error: err }) }));
           tea.notify.error(err || t('wiki.notify.ingestFailed'));
         },
       },
@@ -471,11 +448,7 @@ export function useWikiSources() {
     );
     setIngestState((prev) =>
       prev.active
-        ? {
-            ...prev,
-            active: false,
-            detail: prev.log.length > 0 ? t('wiki.ingest.finished') : prev.detail,
-          }
+        ? { ...prev, active: false, detail: prev.log.length > 0 ? t('wiki.ingest.finished') : prev.detail }
         : prev,
     );
     fetchSources();
@@ -526,9 +499,7 @@ export function useWikiSources() {
       setReadContent(r?.content || '');
     } catch (e: unknown) {
       setReadContent('');
-      tea.notify.error(
-        (e instanceof Error ? e.message : String(e)) || t('wiki.notify.readPageFailed'),
-      );
+      tea.notify.error((e instanceof Error ? e.message : String(e)) || t('wiki.notify.readPageFailed'));
     } finally {
       setReadLoading(false);
     }
@@ -649,12 +620,7 @@ export function useWikiSources() {
     for (const doc of valid) {
       const filename = doc.filename.trim();
       try {
-        await knowledgeApi.wiki.upload({
-          teamId: activeTeamId,
-          wikiId: selectedWikiId,
-          filename,
-          content: doc.content,
-        });
+        await knowledgeApi.wiki.upload({ teamId: activeTeamId, wikiId: selectedWikiId, filename, content: doc.content });
       } catch (e: unknown) {
         failures.push({ filename, error: e instanceof Error ? e.message : String(e) });
       }
@@ -675,15 +641,8 @@ export function useWikiSources() {
         .slice(0, 3)
         .map((f) => `${f.filename}: ${f.error}`)
         .join('\n');
-      const more =
-        failures.length > 3 ? t('wiki.detail.upload.more', { count: failures.length - 3 }) : '';
-      tea.notify.error(
-        t('wiki.detail.upload.partialFail', {
-          ok: okCount,
-          fail: failures.length,
-          detail: `${shown}${more}`,
-        }),
-      );
+      const more = failures.length > 3 ? t('wiki.detail.upload.more', { count: failures.length - 3 }) : '';
+      tea.notify.error(t('wiki.detail.upload.partialFail', { ok: okCount, fail: failures.length, detail: `${shown}${more}` }));
       fetchDetail(selectedWikiId);
       setRawRefreshKey((k) => k + 1);
       if (okCount > 0) await offerIngestAfterUpload(selectedWikiId, okCount);
@@ -711,12 +670,7 @@ export function useWikiSources() {
     const results = await Promise.allSettled(
       pendingFiles.map(async (f) => {
         const content = await f.text();
-        await knowledgeApi.wiki.upload({
-          teamId: activeTeamId,
-          wikiId: selectedWikiId,
-          filename: f.name,
-          content,
-        });
+        await knowledgeApi.wiki.upload({ teamId: activeTeamId, wikiId: selectedWikiId, filename: f.name, content });
         setUploadProgress((prev) => ({ ...prev, [f.name]: 'done' }));
       }),
     );

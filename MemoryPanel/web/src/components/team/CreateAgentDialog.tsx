@@ -130,265 +130,264 @@ export default function CreateAgentDialog({
   }
 
   return (
-    <Modal
-      visible
-      caption={t('createAgent.caption')}
-      size="l"
-      onClose={onClose}
-      disableEscape={busy}
-    >
+    <Modal visible caption={t('createAgent.caption')} size="l" onClose={onClose} disableEscape={busy}>
       <Modal.Body>
         <div className="_memory-form-stack">
           <div className="_memory-modal-description">{t('createAgent.desc')}</div>
-          <div className="_memory-target-team-row">
-            <span className="_memory-target-team-avatar">
-              {team.name.slice(0, 1).toUpperCase()}
-            </span>
-            <div className="_memory-target-team-meta">
-              <div className="_memory-target-team-label">{t('createAgent.teamLabel')}</div>
-              <div className="_memory-target-team-name-row">
-                <span className="_memory-target-team-name">{team.name}</span>
-                <Tag size="sm">{team.team_id}</Tag>
-              </div>
+        <div className="_memory-target-team-row">
+          <span className="_memory-target-team-avatar">{team.name.slice(0, 1).toUpperCase()}</span>
+          <div className="_memory-target-team-meta">
+            <div className="_memory-target-team-label">{t('createAgent.teamLabel')}</div>
+            <div className="_memory-target-team-name-row">
+              <span className="_memory-target-team-name">{team.name}</span>
+              <Tag size="sm">{team.team_id}</Tag>
             </div>
-            <div className="_memory-target-team-hint">{t('createAgent.teamHint')}</div>
           </div>
+          <div className="_memory-target-team-hint">
+            {t('createAgent.teamHint')}
+          </div>
+        </div>
 
-          <div className="_memory-template-box">
-            <div className="_memory-template-box-title-row">
-              <span className="_memory-template-box-title">{t('createAgent.template.title')}</span>
-              <span className="_memory-template-box-hint">{t('createAgent.template.hint')}</span>
-            </div>
-            <div className="_memory-template-chip-row">
-              {templates.map((tpl) => {
-                const active = appliedTemplateId === tpl.template_id;
-                return (
-                  <span
-                    key={tpl.template_id}
-                    className={`_memory-template-chip${active ? ' _memory-template-chip--active' : ''}`}
+        <div className="_memory-template-box">
+          <div className="_memory-template-box-title-row">
+            <span className="_memory-template-box-title">{t('createAgent.template.title')}</span>
+            <span className="_memory-template-box-hint">
+              {t('createAgent.template.hint')}
+            </span>
+          </div>
+          <div className="_memory-template-chip-row">
+            {templates.map((tpl) => {
+              const active = appliedTemplateId === tpl.template_id;
+              return (
+                <span
+                  key={tpl.template_id}
+                  className={`_memory-template-chip${active ? ' _memory-template-chip--active' : ''}`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => applyTemplate(tpl)}
+                    title={tpl.summary || tpl.name}
+                    className="_memory-template-chip-btn"
                   >
+                    {tpl.builtin && <StarFilledIcon size={11} />} {tpl.name}
+                  </button>
+                  {!tpl.builtin && (
                     <button
                       type="button"
-                      onClick={() => applyTemplate(tpl)}
-                      title={tpl.summary || tpl.name}
-                      className="_memory-template-chip-btn"
+                      onClick={() => handleDeleteTemplate(tpl)}
+                      title={t('createAgent.template.delete')}
+                      className="_memory-template-chip-close"
+                      aria-label={t('createAgent.template.delete')}
                     >
-                      {tpl.builtin && <StarFilledIcon size={11} />} {tpl.name}
+                      <CloseIcon size={10} />
                     </button>
-                    {!tpl.builtin && (
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteTemplate(tpl)}
-                        title={t('createAgent.template.delete')}
-                        className="_memory-template-chip-close"
-                        aria-label={t('createAgent.template.delete')}
-                      >
-                        <CloseIcon size={10} />
-                      </button>
-                    )}
-                  </span>
-                );
-              })}
+                  )}
+                </span>
+              );
+            })}
+            <button
+              type="button"
+              onClick={openSaveTemplateForm}
+              className="_memory-template-save-btn"
+            >
+              <AddIcon size={11} /> {t('createAgent.template.save')}
+            </button>
+          </div>
+          {saveTplOpen && (
+            <div className="_memory-template-save-form">
+              <div className="_memory-template-save-hint">
+                {t('createAgent.template.saveHint')}
+              </div>
+              <Input
+                size="full"
+                value={tplName}
+                onChange={setTplName}
+                placeholder={t('createAgent.template.namePlaceholder')}
+              />
+              <Input
+                size="full"
+                value={tplSummary}
+                onChange={setTplSummary}
+                placeholder={t('createAgent.template.summaryPlaceholder')}
+              />
+              <div className="_memory-light-field-label">{t('createAgent.template.descLabel')}</div>
+              <Input
+                size="full"
+                value={tplDescription}
+                onChange={setTplDescription}
+                placeholder={t('createAgent.template.descPlaceholder')}
+              />
+              <div className="_memory-light-field-label">{t('createAgent.template.roleLabel')}</div>
+              <Input.TextArea
+                size="full"
+                rows={3}
+                value={tplRolePrompt}
+                onChange={setTplRolePrompt}
+                placeholder={t('createAgent.template.rolePlaceholder')}
+              />
+              <div className="_memory-light-field-label">{t('createAgent.template.rulesLabel')}</div>
+              <Input.TextArea
+                size="full"
+                rows={4}
+                value={tplRulesPrompt}
+                onChange={setTplRulesPrompt}
+                placeholder={t('createAgent.template.rulesPlaceholder')}
+                className="_memory-mono-textarea"
+              />
+
+              <div className="_memory-template-save-actions">
+                <Button onClick={resetSaveTemplateForm}>{t('createAgent.template.cancel')}</Button>
+                <Button type="primary"
+                  disabled={!tplName.trim()}
+                  onClick={handleSaveTemplate}
+                >
+                  {t('createAgent.template.saveBtn')}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <LightField label={t('createAgent.name')}>
+          <Input
+            autoFocus
+            size="full"
+            value={name}
+            onChange={setName}
+            placeholder={t('createAgent.name.placeholder')}
+          />
+          <div className="_memory-field-hint">
+            {t('createAgent.name.hint')}
+          </div>
+        </LightField>
+
+        <LightField label={t('createAgent.descLabel')} hint={t('createAgent.descHint')}>
+          <Input
+            size="full"
+            value={description}
+            onChange={setDescription}
+            placeholder={t('createAgent.descPlaceholder')}
+          />
+        </LightField>
+
+        <LightField
+          label={t('createAgent.roleLabel')}
+          hint={t('createAgent.roleHint')}
+        >
+          <Input.TextArea
+            size="full"
+            value={rolePrompt}
+            onChange={setRolePrompt}
+            rows={3}
+            placeholder={t('createAgent.rolePlaceholder')}
+          />
+        </LightField>
+
+        <LightField
+          label={t('createAgent.rulesLabel')}
+          hint={t('createAgent.rulesHint')}
+        >
+          <Input.TextArea
+            size="full"
+            value={rulesPrompt}
+            onChange={setRulesPrompt}
+            rows={4}
+            placeholder={t('createAgent.rulesPlaceholder')}
+            className="_memory-mono-textarea"
+          />
+        </LightField>
+
+        {assets.loading ? (
+          <div className="_memory-asset-loading">{t('createAgent.assets.loading')}</div>
+        ) : (
+          <>
+            <div className="_memory-asset-toolbar">
+              <span className="_memory-asset-toolbar-label">{t('createAgent.assets.label')}</span>
               <button
                 type="button"
-                onClick={openSaveTemplateForm}
-                className="_memory-template-save-btn"
+                onClick={() => {
+                  setSkills(selectableAssetKeys(assets.skills));
+                  setCodeGraphs(selectableAssetKeys(assets.codeGraphs));
+                  setLlmWikis(selectableAssetKeys(assets.wikis));
+                  setChatMemories(selectableAssetKeys(assets.chatMemories));
+                }}
+                className="_memory-asset-toolbar-btn"
               >
-                <AddIcon size={11} /> {t('createAgent.template.save')}
+                {t('createAgent.assets.selectAll')}
               </button>
-            </div>
-            {saveTplOpen && (
-              <div className="_memory-template-save-form">
-                <div className="_memory-template-save-hint">
-                  {t('createAgent.template.saveHint')}
-                </div>
-                <Input
-                  size="full"
-                  value={tplName}
-                  onChange={setTplName}
-                  placeholder={t('createAgent.template.namePlaceholder')}
-                />
-                <Input
-                  size="full"
-                  value={tplSummary}
-                  onChange={setTplSummary}
-                  placeholder={t('createAgent.template.summaryPlaceholder')}
-                />
-                <div className="_memory-light-field-label">
-                  {t('createAgent.template.descLabel')}
-                </div>
-                <Input
-                  size="full"
-                  value={tplDescription}
-                  onChange={setTplDescription}
-                  placeholder={t('createAgent.template.descPlaceholder')}
-                />
-                <div className="_memory-light-field-label">
-                  {t('createAgent.template.roleLabel')}
-                </div>
-                <Input.TextArea
-                  size="full"
-                  rows={3}
-                  value={tplRolePrompt}
-                  onChange={setTplRolePrompt}
-                  placeholder={t('createAgent.template.rolePlaceholder')}
-                />
-                <div className="_memory-light-field-label">
-                  {t('createAgent.template.rulesLabel')}
-                </div>
-                <Input.TextArea
-                  size="full"
-                  rows={4}
-                  value={tplRulesPrompt}
-                  onChange={setTplRulesPrompt}
-                  placeholder={t('createAgent.template.rulesPlaceholder')}
-                  className="_memory-mono-textarea"
-                />
-
-                <div className="_memory-template-save-actions">
-                  <Button onClick={resetSaveTemplateForm}>
-                    {t('createAgent.template.cancel')}
-                  </Button>
-                  <Button type="primary" disabled={!tplName.trim()} onClick={handleSaveTemplate}>
-                    {t('createAgent.template.saveBtn')}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <LightField label={t('createAgent.name')}>
-            <Input
-              autoFocus
-              size="full"
-              value={name}
-              onChange={setName}
-              placeholder={t('createAgent.name.placeholder')}
-            />
-            <div className="_memory-field-hint">{t('createAgent.name.hint')}</div>
-          </LightField>
-
-          <LightField label={t('createAgent.descLabel')} hint={t('createAgent.descHint')}>
-            <Input
-              size="full"
-              value={description}
-              onChange={setDescription}
-              placeholder={t('createAgent.descPlaceholder')}
-            />
-          </LightField>
-
-          <LightField label={t('createAgent.roleLabel')} hint={t('createAgent.roleHint')}>
-            <Input.TextArea
-              size="full"
-              value={rolePrompt}
-              onChange={setRolePrompt}
-              rows={3}
-              placeholder={t('createAgent.rolePlaceholder')}
-            />
-          </LightField>
-
-          <LightField label={t('createAgent.rulesLabel')} hint={t('createAgent.rulesHint')}>
-            <Input.TextArea
-              size="full"
-              value={rulesPrompt}
-              onChange={setRulesPrompt}
-              rows={4}
-              placeholder={t('createAgent.rulesPlaceholder')}
-              className="_memory-mono-textarea"
-            />
-          </LightField>
-
-          {assets.loading ? (
-            <div className="_memory-asset-loading">{t('createAgent.assets.loading')}</div>
-          ) : (
-            <>
-              <div className="_memory-asset-toolbar">
-                <span className="_memory-asset-toolbar-label">{t('createAgent.assets.label')}</span>
+              {totalSelected > 0 && (
                 <button
                   type="button"
                   onClick={() => {
-                    setSkills(selectableAssetKeys(assets.skills));
-                    setCodeGraphs(selectableAssetKeys(assets.codeGraphs));
-                    setLlmWikis(selectableAssetKeys(assets.wikis));
-                    setChatMemories(selectableAssetKeys(assets.chatMemories));
+                    setSkills([]);
+                    setCodeGraphs([]);
+                    setLlmWikis([]);
+                    setChatMemories([]);
                   }}
                   className="_memory-asset-toolbar-btn"
                 >
-                  {t('createAgent.assets.selectAll')}
+                  {t('createAgent.assets.clearAll')}
                 </button>
-                {totalSelected > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSkills([]);
-                      setCodeGraphs([]);
-                      setLlmWikis([]);
-                      setChatMemories([]);
-                    }}
-                    className="_memory-asset-toolbar-btn"
-                  >
-                    {t('createAgent.assets.clearAll')}
-                  </button>
-                )}
-              </div>
-              <CollapseGroup
-                icon={<BooksIcon size={16} />}
-                title={t('settings.module.wiki')}
-                selectedCount={llmWikis.length}
-                totalCount={assets.wikis.length}
-                open={wikiOpen}
-                onToggle={() => setWikiOpen(!wikiOpen)}
-              >
-                <AssetCheckList
-                  assets={assets.wikis}
-                  checkedKeys={llmWikis}
-                  onToggle={(k) => toggle(llmWikis, setLlmWikis, k)}
-                />
-              </CollapseGroup>
-              <CollapseGroup
-                icon={<CodeIcon size={16} />}
-                title={t('settings.module.code')}
-                selectedCount={codeGraphs.length}
-                totalCount={assets.codeGraphs.length}
-                open={codeGraphOpen}
-                onToggle={() => setCodeGraphOpen(!codeGraphOpen)}
-              >
-                <AssetCheckList
-                  assets={assets.codeGraphs}
-                  checkedKeys={codeGraphs}
-                  onToggle={(k) => toggle(codeGraphs, setCodeGraphs, k)}
-                />
-              </CollapseGroup>
-              <CollapseGroup
-                icon={<ToolsIcon size={16} />}
-                title={t('settings.module.skill')}
-                selectedCount={skills.length}
-                totalCount={assets.skills.length}
-                open={skillsOpen}
-                onToggle={() => setSkillsOpen(!skillsOpen)}
-              >
-                <AssetCheckList
-                  assets={assets.skills}
-                  checkedKeys={skills}
-                  onToggle={(k) => toggle(skills, setSkills, k)}
-                />
-              </CollapseGroup>
-              <CollapseGroup
-                icon={<ChatIcon size={16} />}
-                title={t('settings.module.chatMemory')}
-                selectedCount={chatMemories.length}
-                totalCount={assets.chatMemories.length}
-                open={memoryOpen}
-                onToggle={() => setMemoryOpen(!memoryOpen)}
-              >
-                <AssetCheckList
-                  assets={assets.chatMemories}
-                  checkedKeys={chatMemories}
-                  onToggle={(k) => toggle(chatMemories, setChatMemories, k)}
-                />
-              </CollapseGroup>
-            </>
-          )}
+              )}
+            </div>
+            <CollapseGroup
+              icon={<BooksIcon size={16} />}
+              title={t('settings.module.wiki')}
+              selectedCount={llmWikis.length}
+              totalCount={assets.wikis.length}
+              open={wikiOpen}
+              onToggle={() => setWikiOpen(!wikiOpen)}
+            >
+              <AssetCheckList
+                assets={assets.wikis}
+                checkedKeys={llmWikis}
+                onToggle={(k) => toggle(llmWikis, setLlmWikis, k)}
+              />
+            </CollapseGroup>
+            <CollapseGroup
+              icon={<CodeIcon size={16} />}
+              title={t('settings.module.code')}
+              selectedCount={codeGraphs.length}
+              totalCount={assets.codeGraphs.length}
+              open={codeGraphOpen}
+              onToggle={() => setCodeGraphOpen(!codeGraphOpen)}
+            >
+              <AssetCheckList
+                assets={assets.codeGraphs}
+                checkedKeys={codeGraphs}
+                onToggle={(k) => toggle(codeGraphs, setCodeGraphs, k)}
+              />
+            </CollapseGroup>
+            <CollapseGroup
+              icon={<ToolsIcon size={16} />}
+              title={t('settings.module.skill')}
+              selectedCount={skills.length}
+              totalCount={assets.skills.length}
+              open={skillsOpen}
+              onToggle={() => setSkillsOpen(!skillsOpen)}
+            >
+              <AssetCheckList
+                assets={assets.skills}
+                checkedKeys={skills}
+                onToggle={(k) => toggle(skills, setSkills, k)}
+              />
+            </CollapseGroup>
+            <CollapseGroup
+              icon={<ChatIcon size={16} />}
+              title={t('settings.module.chatMemory')}
+              selectedCount={chatMemories.length}
+              totalCount={assets.chatMemories.length}
+              open={memoryOpen}
+              onToggle={() => setMemoryOpen(!memoryOpen)}
+            >
+              <AssetCheckList
+                assets={assets.chatMemories}
+                checkedKeys={chatMemories}
+                onToggle={(k) => toggle(chatMemories, setChatMemories, k)}
+              />
+            </CollapseGroup>
+          </>
+        )}
         </div>
       </Modal.Body>
       <Modal.Footer>
@@ -396,24 +395,20 @@ export default function CreateAgentDialog({
           type="primary"
           disabled={!canSubmit}
           loading={busy}
-          onClick={() =>
-            onCreated({
-              name: name.trim(),
-              description: description.trim(),
-              rolePrompt: rolePrompt.trim(),
-              rulesPrompt: rulesPrompt.trim(),
-              skills,
-              codeGraphs,
-              llmWikis,
-              chatMemories,
-            })
-          }
+          onClick={() => onCreated({
+            name: name.trim(),
+            description: description.trim(),
+            rolePrompt: rolePrompt.trim(),
+            rulesPrompt: rulesPrompt.trim(),
+            skills,
+            codeGraphs,
+            llmWikis,
+            chatMemories,
+          })}
         >
           {t('createAgent.submit')}
         </Button>
-        <Button onClick={onClose} disabled={busy}>
-          {t('createAgent.cancel')}
-        </Button>
+        <Button onClick={onClose} disabled={busy}>{t('createAgent.cancel')}</Button>
       </Modal.Footer>
     </Modal>
   );

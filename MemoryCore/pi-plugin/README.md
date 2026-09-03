@@ -5,12 +5,11 @@ through the [TencentDB Agent Memory v2](https://github.com/TencentCloud/TencentD
 proxy for team memory: L3 persona, L2 scene index, L0 conversation capture, and
 on-demand L0/L1/L2 search.
 
-The default provider carries **only routing + a dynamic per-session
-`x-conversation-id` header**. The extension also exports an optional
-project-memory adapter for Pi hosts that expose turn hooks; it calls the
-server-authoritative `/v3/project-memory/*` API and never creates a local
-memory store. The proxy remains responsible for the default provider's
-prompt injection and capture path.
+The plugin carries **only routing + a dynamic per-session `x-conversation-id`
+header**. All memory capability is delivered server-side by the proxy
+(injected into the system prompt and captured from the response). This keeps
+the extension minimal and keeps memory logic in one place. (Scope: routing +
+header; no client-side recall/capture.)
 
 ## Prerequisites
 
@@ -32,18 +31,8 @@ prompt injection and capture path.
 | `TDAI_TASK_ID` | no | — | optional; from the panel (Task linked to the agent). When set, recall narrows to that task; when absent, recall is broad across the agent's memories |
 | `TDAI_USER_KEY` | **yes** | — | the **user's** API key (panel → API Key), NOT the admin/gateway key |
 | `TDAI_MODEL` | no | `glm-5.2-vision` | must match a model the proxy forwards to |
-| `TDAI_PROJECT_MEMORY_URL` | no | — | optional project-memory service URL for hosts that use the exported turn adapter |
-| `TDAI_PROJECT_ID` | no | — | optional server-authorized project ID; otherwise the adapter resolves the workspace via `/v3/projects/list` |
 
 Set these in your shell or Pi's env block; the plugin reads them at load.
-
-When `TDAI_PROJECT_MEMORY_URL` is set and the required identity variables are
-present, the extension exposes `pi.projectMemory` with `resolve`, `recall`, and
-`capture` helpers. The host must call these helpers from its own turn lifecycle;
-the `capture` call must pass the message count recorded before the turn as its
-fifth argument. Without that turn boundary the adapter returns
-`NO_TURN_BOUNDARY` and does not capture session history. The adapter does not
-invent a project when resolution fails.
 
 ## Install / load
 

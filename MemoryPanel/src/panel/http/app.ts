@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { serveStatic } from '@hono/node-server/serve-static';
-import { Hono, type Context } from 'hono';
+import { Hono } from 'hono';
 import { requestLogger } from './middleware/request-logger.js';
 import type { PanelDeps } from '../panel-deps.js';
 import { registerHealthRoutes, registerMetaInstanceRoutes } from './routes/meta/instances.js';
@@ -11,7 +11,6 @@ import { registerTaskRoutes } from './routes/task.js';
 import { registerAgentOverviewRoutes } from './routes/agent-overview.js';
 import { registerAgentLifecycleRoutes } from './routes/agent-lifecycle.js';
 import { registerKnowledgeRoutes } from './routes/knowledge/index.js';
-import { buildProjectMemoryFixtureApp } from '../fixtures/project-memory-fixture.js';
 
 const API_PREFIX = '/api/v1';
 
@@ -36,18 +35,6 @@ export function buildPanelApp(deps: PanelDeps): Hono {
   registerAgentLifecycleRoutes(api, deps);
   registerKnowledgeRoutes(api, deps);
   app.route(API_PREFIX, api);
-  if (deps.config.projectMemoryFixture.enabled) {
-    const fixture = buildProjectMemoryFixtureApp();
-    const forward = async (c: Context): Promise<Response> => {
-      const url = new URL(c.req.url);
-      url.pathname = url.pathname.replace(/^\/api\/v1/, '/v3');
-      return fixture.fetch(new Request(url, c.req.raw));
-    };
-    app.post('/api/v1/projects/list', forward);
-    app.post('/api/v1/project-memory/*', forward);
-    app.post('/v3/projects/list', (c) => fixture.fetch(c.req.raw));
-    app.post('/v3/project-memory/*', (c) => fixture.fetch(c.req.raw));
-  }
 
   app.onError((err, c) => {
     deps.logger.error('panel unhandled error', {

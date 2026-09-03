@@ -66,9 +66,10 @@
   // 召回
   "recall.maxResults": 5,
   "recall.includePersona": true,
-  "recall.includeSceneNav": true
+  "recall.includeSceneNav": true,
 
-  // 捕获始终开启；插件不提供关闭开关
+  // 捕获
+  "capture.enabled": true
 }
 ```
 
@@ -146,7 +147,7 @@ SDK 保持独立包，不绑定任何框架，以后出 Dify 插件、Python 版
 
 ### Q2: 离线/断连降级？
 
-不提供离线或本地 fallback。Gateway 不可达时 hook 只报告 `UNAVAILABLE` 并保持编码请求继续，capture 失败只记 warn；插件不从本地状态拼接记忆事实。
+第一版不做——Gateway 不可达时 hook 返回空（不注入记忆），capture 失败记 warn。后续可加本地 fallback。
 
 ### Q3: 和原插件冲突吗？
 

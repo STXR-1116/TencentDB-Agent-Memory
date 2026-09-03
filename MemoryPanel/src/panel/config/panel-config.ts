@@ -32,8 +32,6 @@ export interface PanelConfig {
   };
   /** 默认 Agent 模板文件的本地存储目录根（存 Panel 本地，按 {dir}/{instanceId}/{team_id}/template.json）。 */
   agentTemplateDir: string;
-  /** Explicit test/integration fixture; disabled for production panel runs. */
-  projectMemoryFixture: { enabled: boolean };
 }
 
 function envBool(key: string, fallback: boolean): boolean {
@@ -67,6 +65,5 @@ export function loadPanelConfig(): PanelConfig {
       proxyBaseUrl: env('KNOWLEDGE_LLM_PROXY_BASE_URL', 'http://127.0.0.1:8096'),
     },
     agentTemplateDir: env('TDAI_AGENT_TEMPLATE_DIR', './data/agent-templates'),
-    projectMemoryFixture: { enabled: envBool('PROJECT_MEMORY_FIXTURE', false) },
   };
 }

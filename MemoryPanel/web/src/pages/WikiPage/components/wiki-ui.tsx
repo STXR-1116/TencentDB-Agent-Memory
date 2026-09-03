@@ -23,13 +23,7 @@ export function WikiStatusBadge({ status }: { status: WikiDetail['status'] }) {
  * 同一 user_id 多行共享同一份缓存，扩展性 O(distinct user 数)，不是 O(行数)。
  * 抽子组件是因为 Rules of Hooks —— 不能在 .map 里循环调 hook。
  */
-export function WikiOwnerLabel({
-  userId,
-  currentUserId,
-}: {
-  userId: string;
-  currentUserId: string;
-}) {
+export function WikiOwnerLabel({ userId, currentUserId }: { userId: string; currentUserId: string }) {
   const { t } = useTranslation();
   return (
     <OwnerLabel
@@ -60,9 +54,7 @@ export function KnowledgeGraphEmbed({
 }) {
   const { t } = useTranslation();
   return (
-    <Suspense
-      fallback={<StatusTip status="loading" loadingText={t('wiki.detail.graph.loading')} />}
-    >
+    <Suspense fallback={<StatusTip status="loading" loadingText={t('wiki.detail.graph.loading')} />}>
       <KnowledgeGraphLazy
         data={data}
         loading={loading}

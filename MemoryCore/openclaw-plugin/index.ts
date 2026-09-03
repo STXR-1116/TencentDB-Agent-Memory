@@ -11,20 +11,11 @@
  */
 
 import { MemoryClient, createMemoryFileReader } from "@tencentdb-agent-memory/memory-sdk-ts-v2";
+import { performRecall } from "./src/hooks/recall.js";
+import { performCapture } from "./src/hooks/capture.js";
 import { handleMemorySearch } from "./src/tools/memory-search.js";
 import { handleConversationSearch } from "./src/tools/conversation-search.js";
 import { handleReadCos } from "./src/tools/read-cos.js";
-import { ProjectMemoryHttpClient } from "./src/project-memory-client.js";
-import {
-  captureProjectMemory,
-  formatProjectMemoryContext,
-  prepareProjectCaptureMessages,
-  recallProjectMemory,
-  resolveProject,
-  isCurrentProjectResolution,
-  nextProjectResolutionEpoch,
-  type ProjectContext,
-} from "./src/hooks/project-memory.js";
 
 const TAG = "[memory-client]";
 
@@ -36,7 +27,6 @@ interface ServerConfig {
   teamId?: string;
   agentId?: string;
   userId?: string;
-  projectId?: string;
   rejectUnauthorized?: boolean;
 }
 interface RecallConfig {
@@ -44,9 +34,13 @@ interface RecallConfig {
   includePersona?: boolean;
   includeSceneNav?: boolean;
 }
+interface CaptureConfig {
+  enabled?: boolean;
+}
 interface PluginConfig {
   server?: ServerConfig;
   recall?: RecallConfig;
+  capture?: CaptureConfig;
 }
 
 // Matches OpenClaw plugin register() signature: export default function register(api)
@@ -55,6 +49,7 @@ export default function register(api: any) {
   const cfg = (api.pluginConfig ?? {}) as PluginConfig;
   const server = cfg.server ?? {};
   const recall = cfg.recall ?? {};
+  const capture = cfg.capture ?? {};
 
   const serverUrl = server.url || "http://127.0.0.1:8420";
   const apiKey = server.apiKey || "local";
@@ -65,8 +60,8 @@ export default function register(api: any) {
   const recallMaxResults = recall.maxResults ?? 5;
   const includePersona = recall.includePersona !== false;
   const includeSceneNav = recall.includeSceneNav !== false;
+  const captureEnabled = capture.enabled !== false;
   const rejectUnauthorized = server.rejectUnauthorized !== false;
-  const projectClient = new ProjectMemoryHttpClient({ endpoint: serverUrl, apiKey, timeoutMs: 10_000 });
 
   // ── Initialize v3 SDK ──
   // Isolation (team/agent/user) is required by Gateway /v3/*; sessionId may be
@@ -93,7 +88,7 @@ export default function register(api: any) {
     `${TAG} Initialized: server=${serverUrl}, instance=${instanceId}, ` +
     `isolation(team=${teamId},agent=${agentId},user=${userId}), ` +
     `recall(persona=${includePersona},sceneNav=${includeSceneNav},max=${recallMaxResults}), ` +
-    `capture=always-on, cosRead=on, rejectUnauthorized=${rejectUnauthorized}`,
+    `capture=${captureEnabled}, cosRead=on, rejectUnauthorized=${rejectUnauthorized}`,
   );
 
   // ── Register Tools (same pattern as extensions/memory-tencentdb/index.ts) ──
@@ -179,8 +174,6 @@ export default function register(api: any) {
   //     fallback when the position slice cannot be determined.
   const pendingOriginalPrompts = new Map<string, { text: string; messageCount: number }>();
   const sessionCursors = new Map<string, number>();
-  const projectContexts = new Map<string, ProjectContext>();
-  const projectResolutionEpochs = new Map<string, number>();
 
   api.on("before_prompt_build", async (event: any, ctx: any) => {
     const sessionKey = ctx?.sessionKey;
@@ -189,31 +182,40 @@ export default function register(api: any) {
     const userText = event?.prompt;
     if (!userText) return;
 
-    // Cache the original prompt for the always-on agent_end capture hook.
-    const messageCount = Array.isArray(event?.messages) ? event.messages.length : 0;
-    pendingOriginalPrompts.set(sessionKey, { text: userText, messageCount });
+    // Cache original prompt for agent_end (only if capture is enabled — it is
+    // the only consumer; recall doesn't need this data).
+    if (captureEnabled) {
+      const messageCount = Array.isArray(event?.messages) ? event.messages.length : 0;
+      pendingOriginalPrompts.set(sessionKey, { text: userText, messageCount });
+    }
 
     try {
-      const workspacePath = ctx?.workspaceDir ?? ctx?.cwd ?? process.cwd();
-      const contextKey = `${sessionKey}\u0000${workspacePath}`;
-      const epoch = nextProjectResolutionEpoch(projectResolutionEpochs, sessionKey);
-      const context = projectContexts.get(contextKey) ?? await resolveProject(projectClient, workspacePath, server.projectId);
-      if (isCurrentProjectResolution(projectResolutionEpochs, sessionKey, epoch)) projectContexts.set(contextKey, context);
-      const result = isCurrentProjectResolution(projectResolutionEpochs, sessionKey, epoch)
-        ? await recallProjectMemory(projectClient, context, userText, ctx?.sessionId, ctx?.taskId)
-        : { status: 'PROJECT_REQUIRED' as const, items: [], contextText: '' };
-      api.logger.info?.(`${TAG} [project-recall] status=${result.status} items=${result.items.length}`);
-      const out: { prependContext?: string } = {};
-      const contextBlock = formatProjectMemoryContext(result.contextText);
-      if (contextBlock) out.prependContext = contextBlock;
+      // Scope L0/L1 recall to this session when sessionId is available
+      const sessionClient = ctx?.sessionId
+        ? client.withIsolation({ sessionId: ctx.sessionId })
+        : client;
+
+      const result = await performRecall(sessionClient, {
+        query: userText,
+        maxResults: recallMaxResults,
+        includePersona,
+        includeSceneNav,
+      }, api.logger);
+
+      // OpenClaw consumes the *return value* of before_prompt_build,
+      // not mutations on the event object. Map our RecallResult to the
+      // PluginHookBeforePromptBuildResult shape.
+      const out: { prependContext?: string; appendSystemContext?: string } = {};
+      if (result.prependContext) out.prependContext = result.prependContext;
+      if (result.appendSystemContext) out.appendSystemContext = result.appendSystemContext;
       return out;
     } catch (err) {
       api.logger.warn(`${TAG} [recall] Failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   });
 
-  {
-    api.logger.info?.(`${TAG} Registering agent_end hook for always-on auto-capture`);
+  if (captureEnabled) {
+    api.logger.info?.(`${TAG} Registering agent_end hook for auto-capture`);
     api.on("agent_end", async (event: any, ctx: any) => {
       const startMs = Date.now();
       const sessionKey = ctx?.sessionKey;
@@ -244,30 +246,26 @@ export default function register(api: any) {
       // or let it be overwritten on next before_prompt_build.
 
       try {
-        const workspacePath = ctx?.workspaceDir ?? ctx?.cwd ?? process.cwd();
-        const contextKey = `${sessionKey}\u0000${workspacePath}`;
-        const context = projectContexts.get(contextKey) ?? await resolveProject(projectClient, workspacePath, server.projectId);
-        projectContexts.set(contextKey, context);
-        const cleaned = prepareProjectCaptureMessages(
-          messages,
-          cached?.text,
-          cached?.messageCount,
-          sessionCursors.get(sessionKey),
+        const sessionClient = ctx?.sessionId
+          ? client.withIsolation({ sessionId: ctx.sessionId })
+          : client;
+
+        const result = await performCapture(
+          sessionClient,
+          {
+            sessionKey,
+            sessionId: ctx?.sessionId,
+            rawMessages: messages,
+            originalUserText: cached?.text,
+            originalUserMessageCount: cached?.messageCount,
+            afterTimestamp: sessionCursors.get(sessionKey),
+          },
+          api.logger,
         );
-        const maxTimestamp = cleaned.reduce((max, item) => Math.max(max, Date.parse(item.timestamp)), 0);
-        if (cleaned.length === 0) return;
-        const capture = await captureProjectMemory(
-          projectClient,
-          context,
-          { session_id: ctx?.sessionId ?? sessionKey, task_id: ctx?.taskId, messages: cleaned },
-          `project-capture-${sessionKey}-${maxTimestamp || Date.now()}`,
-        );
-        if (!capture.accepted) {
-          api.logger.warn(`${TAG} [project-capture] not accepted: ${capture.error ?? 'unknown error'}`);
-          return;
+
+        if (result.maxTimestamp) {
+          sessionCursors.set(sessionKey, result.maxTimestamp);
         }
-        if (capture.jobId) api.logger.info(`${TAG} [project-capture] accepted job=${capture.jobId}`);
-        if (maxTimestamp) sessionCursors.set(sessionKey, maxTimestamp);
         // Cached prompt has been used — clear it so a stale value doesn't
         // bleed into the next turn (e.g. after agent restart).
         pendingOriginalPrompts.delete(sessionKey);
@@ -275,7 +273,7 @@ export default function register(api: any) {
         const elapsed = Date.now() - startMs;
         api.logger.info(
           `${TAG} [agent_end] capture done in ${elapsed}ms ` +
-          `(captured=${cleaned.length}, project=${context.project.project_id})`,
+          `(captured=${result.capturedCount}, serverTotal=${result.serverTotalCount ?? "?"})`,
         );
       } catch (err) {
         const elapsed = Date.now() - startMs;
@@ -285,5 +283,7 @@ export default function register(api: any) {
         );
       }
     });
+  } else {
+    api.logger.info?.(`${TAG} capture disabled by config`);
   }
 }

@@ -194,7 +194,7 @@ export async function performCapture(
  * Strips inline base64 image data URIs (replaces with `[image]`) so they do
  * not bloat the request payload or pollute downstream FTS / embeddings.
  */
-export function extractUserAssistantMessages(messages: unknown[]): ExtractedMessage[] {
+function extractUserAssistantMessages(messages: unknown[]): ExtractedMessage[] {
   const result: ExtractedMessage[] = [];
 
   for (const msg of messages) {

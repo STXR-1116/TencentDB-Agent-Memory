@@ -48,11 +48,8 @@
           },
           "userId": {
             "type": "string",
-            "description": "Legacy SDK user_id for the existing search tools"
-          },
-          "projectId": {
-            "type": "string",
-            "description": "Optional server-authorized project_id; when omitted the workspace is matched against /v3/projects/list"
+            "default": "default",
+            "description": "v3 isolation user_id"
           },
           "rejectUnauthorized": {
             "type": "boolean",
@@ -79,6 +76,17 @@
             "type": "boolean",
             "default": true,
             "description": "是否注入 L2 场景导航索引"
+          }
+        }
+      },
+      "capture": {
+        "type": "object",
+        "description": "对话捕获设置",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "是否启用自动对话捕获 (L0)"
           }
         }
       }

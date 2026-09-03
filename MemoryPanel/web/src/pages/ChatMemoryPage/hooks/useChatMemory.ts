@@ -133,9 +133,7 @@ export function useChatMemory(props: { activeTeamId?: string | null } = {}) {
       setBlocks(mapped);
     } catch (e: unknown) {
       if (seq !== fetchSeqRef.current) return;
-      tea.notify.error(
-        (e instanceof Error ? e.message : String(e)) || t('memory.notify.loadFailed'),
-      );
+      tea.notify.error((e instanceof Error ? e.message : String(e)) || t('memory.notify.loadFailed'));
       setBlocks([]);
     } finally {
       if (seq === fetchSeqRef.current) setBlocksLoading(false);
@@ -266,7 +264,9 @@ export function useChatMemory(props: { activeTeamId?: string | null } = {}) {
               // 全量总数在选中块时已通过 limit=1 请求获取并存于 layerCounts，
               // 这里不能覆盖，否则徽章计数 / L0 加载更多判断会错。
               // 仅未带时间筛选（L2/L3，或清除时间范围后的 L0/L1）才同步全量 total。
-              ...(!useTimeFilter ? { layerCounts: { ...b.layerCounts, [layer]: res.total } } : {}),
+              ...(!useTimeFilter
+                ? { layerCounts: { ...b.layerCounts, [layer]: res.total } }
+                : {}),
             };
             if (res.layer === 'L0') {
               updated.layers.L0 = res.items;
@@ -368,9 +368,7 @@ export function useChatMemory(props: { activeTeamId?: string | null } = {}) {
         return;
       }
     } catch (e: unknown) {
-      tea.notify.error(
-        (e instanceof Error ? e.message : String(e)) || t('memory.notify.layerFailed'),
-      );
+      tea.notify.error((e instanceof Error ? e.message : String(e)) || t('memory.notify.layerFailed'));
     } finally {
       setL0MoreLoading(false);
     }
@@ -416,9 +414,7 @@ export function useChatMemory(props: { activeTeamId?: string | null } = {}) {
           }),
         );
       } catch (e: unknown) {
-        tea.notify.error(
-          (e instanceof Error ? e.message : String(e)) || t('memory.notify.l2Failed'),
-        );
+        tea.notify.error((e instanceof Error ? e.message : String(e)) || t('memory.notify.l2Failed'));
       } finally {
         setLayerItemLoadingId(null);
       }
@@ -552,9 +548,7 @@ export function useChatMemory(props: { activeTeamId?: string | null } = {}) {
       setShowImport(false);
       fetchBlocks();
     } catch (e: unknown) {
-      tea.notify.error(
-        (e instanceof Error ? e.message : String(e)) || t('memory.notify.importFailed'),
-      );
+      tea.notify.error((e instanceof Error ? e.message : String(e)) || t('memory.notify.importFailed'));
     }
   }
 
@@ -579,9 +573,7 @@ export function useChatMemory(props: { activeTeamId?: string | null } = {}) {
       );
       fetchBlocks();
     } catch (e: unknown) {
-      tea.notify.error(
-        (e instanceof Error ? e.message : String(e)) || t('memory.notify.scopeFailed'),
-      );
+      tea.notify.error((e instanceof Error ? e.message : String(e)) || t('memory.notify.scopeFailed'));
     }
   }
 

@@ -3,21 +3,7 @@
  * 全部数据与回调来自 useWikiSources 的返回对象，组件只做渲染。
  */
 import { useTranslation } from 'react-i18next';
-import {
-  Alert,
-  Button,
-  Card,
-  Input,
-  MetricsBoard,
-  Modal,
-  Progress,
-  SearchBox,
-  StatusTip,
-  TabPanel,
-  Tabs,
-  Tag,
-  Text,
-} from 'tea-component';
+import { Alert, Button, Card, Input, MetricsBoard, Modal, Progress, SearchBox, StatusTip, TabPanel, Tabs, Tag, Text } from 'tea-component';
 import {
   ArrowLeftIcon,
   AttachIcon,
@@ -35,12 +21,7 @@ import {
 } from 'tea-icons-react';
 import { knowledgeApi } from '@/lib/api/knowledge-api';
 import { tea } from '@/lib/tea-bridge';
-import {
-  WIKI_ALLOWED_FILE_RE,
-  TYPE_COLORS,
-  TYPE_COLOR_FALLBACK,
-  type DetailTab,
-} from '../constants/wiki-constants';
+import { WIKI_ALLOWED_FILE_RE, TYPE_COLORS, TYPE_COLOR_FALLBACK, type DetailTab } from '../constants/wiki-constants';
 import { WikiStatusBadge } from './wiki-ui';
 import { GraphTabContent, PagesTabContent } from './wiki-detail-components';
 import type { WikiSourcesStore } from '../hooks/useWikiSources';
@@ -102,13 +83,7 @@ export function WikiDetailView({ store }: { store: WikiSourcesStore }) {
     return (
       <Card>
         <Card.Body>
-          <Button
-            type="text"
-            onClick={() => {
-              fetchSources();
-              setSubView('list');
-            }}
-          >
+          <Button type="text" onClick={() => { fetchSources(); setSubView('list'); }}>
             <ArrowLeftIcon size={12} /> {t('wiki.breadcrumb')}
           </Button>
           <StatusTip status="empty" emptyText={t('wiki.detail.notFound')} />
@@ -122,13 +97,7 @@ export function WikiDetailView({ store }: { store: WikiSourcesStore }) {
       <Card>
         <Card.Body className="_wiki-detail-header-body">
           <div className="_wiki-detail-breadcrumb">
-            <Button
-              type="link"
-              onClick={() => {
-                fetchSources();
-                setSubView('list');
-              }}
-            >
+            <Button type="link" onClick={() => { fetchSources(); setSubView('list'); }}>
               <ArrowLeftIcon size={12} /> {t('wiki.breadcrumb')}
             </Button>
             <span className="_wiki-detail-breadcrumb-sep">/</span>
@@ -427,9 +396,7 @@ export function WikiDetailView({ store }: { store: WikiSourcesStore }) {
             {searching && <StatusTip status="loading" />}
             {!searching && searchResults.length > 0 && (
               <>
-                <Text theme="label">
-                  {t('wiki.detail.search.results', { count: searchResults.length })}
-                </Text>
+                <Text theme="label">{t('wiki.detail.search.results', { count: searchResults.length })}</Text>
                 <div className="_wiki-detail-search-results">
                   {searchResults.map((result, index) => (
                     <button
@@ -507,7 +474,9 @@ export function WikiDetailView({ store }: { store: WikiSourcesStore }) {
                       const allowed = all.filter((f) => WIKI_ALLOWED_FILE_RE.test(f.name));
                       const rejected = all.length - allowed.length;
                       if (rejected > 0) {
-                        tea.notify.warning(t('wiki.detail.ignored', { count: rejected }));
+                        tea.notify.warning(
+                          t('wiki.detail.ignored', { count: rejected }),
+                        );
                       }
                       if (allowed.length > 0) setPendingFiles((prev) => [...prev, ...allowed]);
                     }}
@@ -551,18 +520,14 @@ export function WikiDetailView({ store }: { store: WikiSourcesStore }) {
                   )}
                   {pendingFiles.length > 0 && (
                     <div className="_wiki-detail-upload-footer">
-                      <Text theme="weak">
-                        {t('wiki.detail.upload.footer', { count: pendingFiles.length })}
-                      </Text>
+                      <Text theme="weak">{t('wiki.detail.upload.footer', { count: pendingFiles.length })}</Text>
                       <Button
                         type="primary"
                         onClick={handleBatchUpload}
                         disabled={submitting}
                         loading={submitting}
                       >
-                        {submitting
-                          ? t('wiki.detail.upload.submitting')
-                          : t('wiki.detail.upload.confirm')}
+                        {submitting ? t('wiki.detail.upload.submitting') : t('wiki.detail.upload.confirm')}
                       </Button>
                     </div>
                   )}
@@ -613,9 +578,7 @@ export function WikiDetailView({ store }: { store: WikiSourcesStore }) {
                   </Button>
                   <div className="_wiki-detail-upload-footer">
                     <Text theme="weak">
-                      {t('wiki.detail.md.pending', {
-                        count: mdDocs.filter((d) => d.filename.trim() && d.content.trim()).length,
-                      })}
+                      {t('wiki.detail.md.pending', { count: mdDocs.filter((d) => d.filename.trim() && d.content.trim()).length })}
                     </Text>
                     <Button
                       type="primary"
@@ -625,9 +588,7 @@ export function WikiDetailView({ store }: { store: WikiSourcesStore }) {
                       }
                       loading={submitting}
                     >
-                      {submitting
-                        ? t('wiki.detail.upload.submitting')
-                        : t('wiki.detail.upload.confirm')}
+                      {submitting ? t('wiki.detail.upload.submitting') : t('wiki.detail.upload.confirm')}
                     </Button>
                   </div>
                 </div>
@@ -646,7 +607,9 @@ export function WikiDetailView({ store }: { store: WikiSourcesStore }) {
                 const allowed = all.filter((f) => WIKI_ALLOWED_FILE_RE.test(f.name));
                 const rejected = all.length - allowed.length;
                 if (rejected > 0) {
-                  tea.notify.warning(t('wiki.detail.ignored', { count: rejected }));
+                  tea.notify.warning(
+                    t('wiki.detail.ignored', { count: rejected }),
+                  );
                 }
                 if (allowed.length > 0) setPendingFiles((prev) => [...prev, ...allowed]);
                 e.target.value = '';

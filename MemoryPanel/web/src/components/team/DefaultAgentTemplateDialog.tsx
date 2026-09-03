@@ -21,17 +21,12 @@ import { LightField, CollapseGroup, AssetCheckList, selectableAssetKeys } from '
 import { useTeamAssets } from './useAgentAssets';
 
 /** 从模板 metadata_json（JSON 字符串）读取 ui.role_prompt / ui.rules_prompt。 */
-function readTemplatePrompts(tpl: AgentTemplateConfig): {
-  rolePrompt: string;
-  rulesPrompt: string;
-} {
+function readTemplatePrompts(tpl: AgentTemplateConfig): { rolePrompt: string; rulesPrompt: string } {
   let rolePrompt = '';
   let rulesPrompt = '';
   if (tpl.metadata_json) {
     try {
-      const meta = JSON.parse(tpl.metadata_json) as {
-        ui?: { role_prompt?: string; rules_prompt?: string };
-      };
+      const meta = JSON.parse(tpl.metadata_json) as { ui?: { role_prompt?: string; rules_prompt?: string } };
       rolePrompt = meta?.ui?.role_prompt ?? '';
       rulesPrompt = meta?.ui?.rules_prompt ?? '';
     } catch {
@@ -58,12 +53,8 @@ export default function DefaultAgentTemplateDialog({
   const { t } = useTranslation();
   const [name, setName] = useState(initial?.name ?? '');
   const [description, setDescription] = useState(initial?.description ?? '');
-  const [rolePrompt, setRolePrompt] = useState(
-    () => readTemplatePrompts(initial ?? { name: '' }).rolePrompt,
-  );
-  const [rulesPrompt, setRulesPrompt] = useState(
-    () => readTemplatePrompts(initial ?? { name: '' }).rulesPrompt,
-  );
+  const [rolePrompt, setRolePrompt] = useState(() => readTemplatePrompts(initial ?? { name: '' }).rolePrompt);
+  const [rulesPrompt, setRulesPrompt] = useState(() => readTemplatePrompts(initial ?? { name: '' }).rulesPrompt);
   const [skillsOpen, setSkillsOpen] = useState(false);
   const [codeGraphOpen, setCodeGraphOpen] = useState(false);
   const [wikiOpen, setWikiOpen] = useState(false);
@@ -120,9 +111,7 @@ export default function DefaultAgentTemplateDialog({
             {initial ? t('defaultAgent.edit.desc') : t('defaultAgent.create.desc')}
           </div>
           <div className="_memory-target-team-row">
-            <span className="_memory-target-team-avatar">
-              {team.name.slice(0, 1).toUpperCase()}
-            </span>
+            <span className="_memory-target-team-avatar">{team.name.slice(0, 1).toUpperCase()}</span>
             <div className="_memory-target-team-meta">
               <div className="_memory-target-team-label">{t('createAgent.teamLabel')}</div>
               <div className="_memory-target-team-name-row">
@@ -130,7 +119,9 @@ export default function DefaultAgentTemplateDialog({
                 <Tag size="sm">{team.team_id}</Tag>
               </div>
             </div>
-            <div className="_memory-target-team-hint">{t('createAgent.teamHint')}</div>
+            <div className="_memory-target-team-hint">
+              {t('createAgent.teamHint')}
+            </div>
           </div>
 
           <LightField label={t('defaultAgent.name')}>
@@ -140,7 +131,9 @@ export default function DefaultAgentTemplateDialog({
               onChange={setName}
               placeholder={t('createAgent.name.placeholder')}
             />
-            <div className="_memory-field-hint">{t('defaultAgent.name.hint')}</div>
+            <div className="_memory-field-hint">
+              {t('defaultAgent.name.hint')}
+            </div>
           </LightField>
 
           <LightField label={t('createAgent.descLabel')} hint={t('createAgent.descHint')}>
@@ -152,7 +145,10 @@ export default function DefaultAgentTemplateDialog({
             />
           </LightField>
 
-          <LightField label={t('createAgent.roleLabel')} hint={t('createAgent.roleHint')}>
+          <LightField
+            label={t('createAgent.roleLabel')}
+            hint={t('createAgent.roleHint')}
+          >
             <Input.TextArea
               size="full"
               value={rolePrompt}
@@ -162,7 +158,10 @@ export default function DefaultAgentTemplateDialog({
             />
           </LightField>
 
-          <LightField label={t('createAgent.rulesLabel')} hint={t('createAgent.rulesHint')}>
+          <LightField
+            label={t('createAgent.rulesLabel')}
+            hint={t('createAgent.rulesHint')}
+          >
             <Input.TextArea
               size="full"
               value={rulesPrompt}
@@ -181,7 +180,9 @@ export default function DefaultAgentTemplateDialog({
                 <span className="_memory-asset-toolbar-label">
                   {t('defaultAgent.assets.label')}
                 </span>
-                <span className="_memory-asset-toolbar-hint">{t('defaultAgent.assets.hint')}</span>
+                <span className="_memory-asset-toolbar-hint">
+                  {t('defaultAgent.assets.hint')}
+                </span>
                 <button
                   type="button"
                   onClick={() => {
@@ -257,9 +258,7 @@ export default function DefaultAgentTemplateDialog({
         <Button type="primary" disabled={!canSubmit} loading={busy} onClick={handleSave}>
           {initial ? t('defaultAgent.save') : t('defaultAgent.create.submit')}
         </Button>
-        <Button onClick={onClose} disabled={busy}>
-          {t('createAgent.cancel')}
-        </Button>
+        <Button onClick={onClose} disabled={busy}>{t('createAgent.cancel')}</Button>
       </Modal.Footer>
     </Modal>
   );

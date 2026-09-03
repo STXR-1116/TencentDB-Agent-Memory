@@ -11,9 +11,7 @@ const _displayNameCache = new Map<string, string>();
 const _fetching = new Set<string>();
 const _subscribers = new Set<() => void>();
 
-function notify() {
-  _subscribers.forEach((fn) => fn());
-}
+function notify() { _subscribers.forEach((fn) => fn()); }
 
 /** 批量写入展示名缓存（如 team-member/list 已带 username 时）。 */
 export function seedDisplayNameCache(entries: Array<{ user_id: string; username?: string }>): void {
@@ -36,9 +34,7 @@ export function useUserDisplayName(user_id: string | null | undefined): string {
   useEffect(() => {
     const sub = () => force((n) => n + 1);
     _subscribers.add(sub);
-    return () => {
-      _subscribers.delete(sub);
-    };
+    return () => { _subscribers.delete(sub); };
   }, []);
 
   if (!user_id) return '';
@@ -49,19 +45,14 @@ export function useUserDisplayName(user_id: string | null | undefined): string {
   if (!_fetching.has(user_id)) {
     _fetching.add(user_id);
     import('@/lib/teamApi').then(({ usersApi }) => {
-      usersApi
-        .get(user_id)
+      usersApi.get(user_id)
         .then((u) => {
           const name = u.display_name || u.username || user_id;
           _displayNameCache.set(user_id, name);
           notify();
         })
-        .catch(() => {
-          /* 静默失败 */
-        })
-        .finally(() => {
-          _fetching.delete(user_id);
-        });
+        .catch(() => { /* 静默失败 */ })
+        .finally(() => { _fetching.delete(user_id); });
     });
   }
 
@@ -78,9 +69,7 @@ export function useDisplayNameResolver(): (userId: string) => string {
   useEffect(() => {
     const sub = () => force((n) => n + 1);
     _subscribers.add(sub);
-    return () => {
-      _subscribers.delete(sub);
-    };
+    return () => { _subscribers.delete(sub); };
   }, []);
 
   return useCallback((userId: string) => {
@@ -90,19 +79,14 @@ export function useDisplayNameResolver(): (userId: string) => string {
     if (!_fetching.has(userId)) {
       _fetching.add(userId);
       import('@/lib/teamApi').then(({ usersApi }) => {
-        usersApi
-          .get(userId)
+        usersApi.get(userId)
           .then((u) => {
             const name = u.display_name || u.username || userId;
             _displayNameCache.set(userId, name);
             notify();
           })
-          .catch(() => {
-            /* 静默失败 */
-          })
-          .finally(() => {
-            _fetching.delete(userId);
-          });
+          .catch(() => { /* 静默失败 */ })
+          .finally(() => { _fetching.delete(userId); });
       });
     }
     return userId;

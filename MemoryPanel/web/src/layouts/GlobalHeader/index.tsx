@@ -154,10 +154,7 @@ export function GlobalHeader({
 // =================== Profile Modal ===================
 
 /** TeamRole → 展示文案 + Tag 主题色 */
-function roleDisplay(role: TeamRole | null): {
-  label: string;
-  theme: 'primary' | 'default' | 'warning';
-} {
+function roleDisplay(role: TeamRole | null): { label: string; theme: 'primary' | 'default' | 'warning' } {
   if (role === 'admin') return { label: 'admin', theme: 'primary' };
   if (role === 'reviewer') return { label: 'reviewer', theme: 'warning' };
   return { label: 'member', theme: 'default' };
@@ -198,7 +195,12 @@ function ProfileModal({
         <Justify
           left={
             <div className="_memory-profile-identity">
-              <Avatar color={currentUserId} text={initial} width={48} height={48} />
+              <Avatar
+                color={currentUserId}
+                text={initial}
+                width={48}
+                height={48}
+              />
               <div className="_memory-profile-identity-meta">
                 <Text theme="strong" parent="div" className="_memory-profile-identity-name">
                   {currentUser}
@@ -209,11 +211,7 @@ function ProfileModal({
               </div>
             </div>
           }
-          right={
-            <Tag theme={role.theme} variant="soft">
-              {t(`header.profile.role.${role.label}`)}
-            </Tag>
-          }
+          right={<Tag theme={role.theme} variant="soft">{t(`header.profile.role.${role.label}`)}</Tag>}
         />
 
         <div className="_memory-profile-divider" />
@@ -223,10 +221,7 @@ function ProfileModal({
           <Text theme="label" parent="div" className="_memory-profile-section-label">
             {t('header.profile.userId')}
           </Text>
-          <InputAdornment
-            after={<Copy text={currentUserId} />}
-            className="_memory-profile-input-adornment"
-          >
+          <InputAdornment after={<Copy text={currentUserId} />} className="_memory-profile-input-adornment">
             <Input value={currentUserId} readonly size="full" />
           </InputAdornment>
           <Text theme="weak" parent="div" className="_memory-profile-section-hint">
@@ -252,11 +247,7 @@ function ProfileModal({
               {t('header.profile.instance')}
             </Text>
             <InputAdornment
-              after={
-                <Tag size="sm" variant="outlined">
-                  {currentUserId.split('-')[0]}
-                </Tag>
-              }
+              after={<Tag size="sm" variant="outlined">{currentUserId.split('-')[0]}</Tag>}
               className="_memory-profile-input-adornment"
             >
               <Input value={instanceName} readonly size="full" />

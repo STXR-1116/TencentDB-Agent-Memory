@@ -55,11 +55,7 @@ export const membersApi = {
    * 传入 `{ username }` 做精确匹配。
    */
   add: (teamId: string, data: { user_id: string; role: 'admin' | 'member' | 'reviewer' }) =>
-    metaPost<TeamMember>('team-member/add', {
-      team_id: teamId,
-      user_id: data.user_id,
-      role: data.role,
-    }),
+    metaPost<TeamMember>('team-member/add', { team_id: teamId, user_id: data.user_id, role: data.role }),
 
   /** 移除成员 */
   remove: async (teamId: string, userId: string) => {

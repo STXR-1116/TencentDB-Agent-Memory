@@ -8,7 +8,6 @@
  * recipes) arrives server-side from the proxy. (Scope C.)
  */
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { createPiProjectMemoryAdapter } from "./src/project-memory.js";
 
 export default function (pi: ExtensionAPI) {
   const proxyBase = process.env.TDAI_PROXY_URL ?? "http://127.0.0.1:8096";
@@ -19,8 +18,6 @@ export default function (pi: ExtensionAPI) {
   const teamId = process.env.TDAI_TEAM_ID ?? "";
   const agentId = process.env.TDAI_AGENT_ID ?? "";
   const taskId = process.env.TDAI_TASK_ID ?? "";
-  const projectMemoryUrl = process.env.TDAI_PROJECT_MEMORY_URL ?? "";
-  const projectMemoryProjectId = process.env.TDAI_PROJECT_ID;
 
   // Graceful degradation: if required identity env vars are missing, warn and
   // skip registration so Pi still starts. The user sees the warning at load
@@ -43,18 +40,6 @@ export default function (pi: ExtensionAPI) {
         `Pi will start without the TDAI provider.`,
     );
     return;
-  }
-
-  // The Pi host exposes provider headers only in older versions. Keep the
-  // project-memory adapter available to hosts that provide turn hooks without
-  // fabricating a project or silently falling back to local memory.
-  if (projectMemoryUrl) {
-    const adapter = createPiProjectMemoryAdapter({
-      endpoint: projectMemoryUrl,
-      apiKey: userKey,
-      projectId: projectMemoryProjectId,
-    });
-    (pi as unknown as { projectMemory?: typeof adapter }).projectMemory = adapter;
   }
 
   // Only send x-task-id when explicitly set; an absent/stale task makes the

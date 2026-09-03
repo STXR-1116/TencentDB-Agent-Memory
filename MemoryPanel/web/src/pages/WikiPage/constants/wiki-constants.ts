@@ -14,10 +14,7 @@ export const WIKI_ALLOWED_FILE_RE = /\.(md|txt|markdown)$/i;
 
 // Wiki 状态徽章：draft=建壳未加工（待用户点 ingest）；pending=排队；processing=加工中；ready=就绪；failed=失败；missing=KS 数据丢失。
 // 走 Tea Tag 的语义 theme（soft 变体），随主题响应，不用硬编码调色板色。
-export const WIKI_STATUS_THEME: Record<
-  WikiDetail['status'],
-  'warning' | 'success' | 'error' | 'default'
-> = {
+export const WIKI_STATUS_THEME: Record<WikiDetail['status'], 'warning' | 'success' | 'error' | 'default'> = {
   draft: 'warning',
   pending: 'warning',
   processing: 'warning',
