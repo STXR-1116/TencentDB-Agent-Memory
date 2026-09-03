@@ -185,13 +185,7 @@ export const chatMemoryApi = {
 
   /** 分层语义 / 关键字搜索（agent 维度跨 session 召回，命中项带 score）：
    *  L0 = 对话消息检索；L1 = 原子记忆检索。 */
-  searchLayer: (
-    blockId: string,
-    layer: 'L0' | 'L1',
-    query: string,
-    limit = 30,
-    type?: string,
-  ) =>
+  searchLayer: (blockId: string, layer: 'L0' | 'L1', query: string, limit = 30, type?: string) =>
     chatMemoryCall<{ items: ChatMemorySearchHit[]; total: number }>('search', {
       block_id: blockId,
       layer,

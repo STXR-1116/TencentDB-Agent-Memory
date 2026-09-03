@@ -71,7 +71,7 @@ MEMORY_INSTALL_MODE=server \
   bash scripts/install-openclaw-plugin.sh
 ```
 
-The script installs/builds this plugin (`npm install` pulls the SDK from the registry), runs `openclaw plugins install -l`, and updates `~/.openclaw/openclaw.json`: `plugins.slots.memory = "memory-tencentdb-client"`, enables the entry, and writes `server` (including isolation), `recall`, and `capture`. On **OpenClaw >= 2026.4.24** it also writes `hooks.allowPromptInjection` / `hooks.allowConversationAccess`; on older versions those fields are **omitted**.
+The script installs/builds this plugin (`npm install` pulls the SDK from the registry), runs `openclaw plugins install -l`, and updates `~/.openclaw/openclaw.json`: `plugins.slots.memory = "memory-tencentdb-client"`, enables the entry, and writes `server` (including isolation) and `recall`. Auto-capture is always enabled and has no plugin setting. On **OpenClaw >= 2026.4.24** the script also writes `hooks.allowPromptInjection` / `hooks.allowConversationAccess`; on older versions those fields are **omitted**.
 
 Useful env overrides: `OPENCLAW_CONFIG_FILE`, `TDAI_MEMORY_ENDPOINT`, `TDAI_MEMORY_API_KEY`, `TDAI_MEMORY_INSTANCE_ID`, `TDAI_MEMORY_TEAM_ID`, `TDAI_MEMORY_AGENT_ID`, `TDAI_MEMORY_USER_ID`, `WRITE_OPENCLAW_CONFIG=0`.
 
@@ -135,9 +135,6 @@ The installer writes config by default. Edit manually only when using `WRITE_OPE
             "maxResults": 5,
             "includePersona": true,
             "includeSceneNav": true
-          },
-          "capture": {
-            "enabled": true
           }
         }
       }
@@ -183,7 +180,7 @@ openclaw gateway restart
 | `recall.maxResults` | `5` | Max L1 memories injected per turn |
 | `recall.includePersona` | `true` | Include L3 core/profile |
 | `recall.includeSceneNav` | `true` | Include L2 scene navigation |
-| `capture.enabled` | `true` | Auto-capture completed turns |
+| Auto-capture | always on | Captures successful completed turns; there is no plugin disable switch |
 | `hooks.allowPromptInjection` | `true` | Only write on OpenClaw `>= 2026.4.24` |
 | `hooks.allowConversationAccess` | `true` | Only write on OpenClaw `>= 2026.4.24`; required for L0 on non-bundled plugins |
 

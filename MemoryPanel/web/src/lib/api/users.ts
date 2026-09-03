@@ -15,7 +15,8 @@ export interface CreateUserResult {
 
 export const usersApi = {
   /** 分页列出用户；可传入 { username } 精确匹配或 { user_ids } 过滤 */
-  list: (params?: { username?: string; user_ids?: string[] }) => metaListAll<PublicUser>('user/list', { ...params }),
+  list: (params?: { username?: string; user_ids?: string[] }) =>
+    metaListAll<PublicUser>('user/list', { ...params }),
 
   /** 用户详情 */
   get: (userId: string) => metaPost<PublicUser>('user/get', { user_id: userId }),
@@ -28,8 +29,13 @@ export const usersApi = {
    *
    * ⚠️ 权限：须当前用户持有 system_admin 权限；普通用户 → 403。
    */
-  create: (data: { username: string; auth_provider: string; external_id: string; display_name?: string; email?: string }) =>
-    metaPost<CreateUserResult>('user/create', data),
+  create: (data: {
+    username: string;
+    auth_provider: string;
+    external_id: string;
+    display_name?: string;
+    email?: string;
+  }) => metaPost<CreateUserResult>('user/create', data),
 
   /**
    * 新建用户并显式指定 user_key（透明代理至后端 user/create-with-key）。
@@ -74,7 +80,8 @@ export const userKeysApi = {
   list: () => dedupeInFlight('user-key/list', () => metaListAll<UserKey>('user-key/list', {})),
 
   /** 创建一把新 Key；返回值里的 key_value 明文只展示这一次，调用方需立即展示给用户 */
-  create: (data: { name?: string; expires_at?: string; user_id?: string }) => metaPost<UserKey>('user-key/create', data),
+  create: (data: { name?: string; expires_at?: string; user_id?: string }) =>
+    metaPost<UserKey>('user-key/create', data),
 
   /** 吊销一把 Key */
   revoke: (keyId: string) => metaPost<{ ok: boolean }>('user-key/revoke', { key_id: keyId }),
@@ -82,7 +89,8 @@ export const userKeysApi = {
 
 // ========================= User Config（meta/config/user/*）=========================
 
-export type AssetCapabilityKey = 'skill.enabled' | 'llm_wiki.enabled' | 'code_graph.enabled' | 'chat_memory.enabled';
+export type AssetCapabilityKey =
+  'skill.enabled' | 'llm_wiki.enabled' | 'code_graph.enabled' | 'chat_memory.enabled';
 
 export interface UserConfigItem {
   module: string;

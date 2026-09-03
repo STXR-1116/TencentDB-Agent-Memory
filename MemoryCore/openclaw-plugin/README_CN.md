@@ -71,7 +71,7 @@ MEMORY_INSTALL_MODE=server \
   bash scripts/install-openclaw-plugin.sh
 ```
 
-脚本会安装并构建本插件（`npm install` 从 registry 拉取 SDK）、执行 `openclaw plugins install -l`，并更新 `~/.openclaw/openclaw.json`：设置 `plugins.slots.memory = "memory-tencentdb-client"`，启用插件，写入 `server`（含 isolation）、`recall`、`capture`。**OpenClaw >= 2026.4.24** 时写入 `hooks.allowPromptInjection` / `hooks.allowConversationAccess`；更老版本会自动跳过这两个字段。
+脚本会安装并构建本插件（`npm install` 从 registry 拉取 SDK）、执行 `openclaw plugins install -l`，并更新 `~/.openclaw/openclaw.json`：设置 `plugins.slots.memory = "memory-tencentdb-client"`，启用插件，写入 `server`（含 isolation）和 `recall`。自动捕获始终开启，不提供插件配置项。**OpenClaw >= 2026.4.24** 时写入 `hooks.allowPromptInjection` / `hooks.allowConversationAccess`；更老版本会自动跳过这两个字段。
 
 常用环境变量：`OPENCLAW_CONFIG_FILE`、`TDAI_MEMORY_ENDPOINT`、`TDAI_MEMORY_API_KEY`、`TDAI_MEMORY_INSTANCE_ID`、`TDAI_MEMORY_TEAM_ID`、`TDAI_MEMORY_AGENT_ID`、`TDAI_MEMORY_USER_ID`、`WRITE_OPENCLAW_CONFIG=0`。
 
@@ -135,9 +135,6 @@ openclaw plugins install -l .
             "maxResults": 5,
             "includePersona": true,
             "includeSceneNav": true
-          },
-          "capture": {
-            "enabled": true
           }
         }
       }
@@ -183,7 +180,7 @@ openclaw gateway restart
 | `recall.maxResults` | `5` | 每轮最多注入的 L1 条数 |
 | `recall.includePersona` | `true` | 是否注入 L3 |
 | `recall.includeSceneNav` | `true` | 是否注入 L2 场景导航 |
-| `capture.enabled` | `true` | 是否自动捕获对话 |
+| 自动捕获 | 始终开启 | 捕获成功完成的回合；插件不提供关闭开关 |
 | `hooks.allowPromptInjection` | `true` | 仅在 OpenClaw `>= 2026.4.24` 写入 |
 | `hooks.allowConversationAccess` | `true` | 仅在 OpenClaw `>= 2026.4.24` 写入；non-bundled 上 L0 必需 |
 
